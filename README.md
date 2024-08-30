@@ -6,10 +6,10 @@ This project is a Blog Management System that allows users to manage blog posts 
 
 ## Features
 
-- **User Authentication**: Register, login, and manage user sessions.
-- **Profile Management**: Private and public profiles for users.
-- **CRUD Operations**: Basic operations to create, read, update, and delete blog posts.
-- **Filtering**: Basic filtering of posts by category.
+- **User Authentication**: Secure user registration, login, and Google Sign-In integration, with basic  session management.
+- **Profile Management**: basic profile management, including private and public profile views.
+- **CRUD Operations**: Full functionality for creating, reading, updating, and deleting blog posts,comments.
+- **Post Filtering**: basic filtering options for blog posts by category.
 
 ## Technologies Used
 
