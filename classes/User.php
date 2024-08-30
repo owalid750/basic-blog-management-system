@@ -6,6 +6,7 @@ class User
     private $table = 'users';
 
     public $id;
+    public $google_id;
     public $username;
     public $email;
     public $user_image;
@@ -13,6 +14,7 @@ class User
     public $password;
     public $role;
     public $created_at;
+    public $user_status;
 
     public function __construct($db)
     {
@@ -20,7 +22,7 @@ class User
     }
 
     // Register new user
-    public function register()
+    /* public function register()
     {
 
 
@@ -33,7 +35,7 @@ class User
         // Clean and bind data
         $this->username = htmlspecialchars(strip_tags($this->username));
         $this->email = htmlspecialchars(strip_tags($this->email));
-        $this->password = password_hash($this->password, PASSWORD_BCRYPT); // Hash the password
+        // $this->password = password_hash($this->password, PASSWORD_BCRYPT); // Hash the password
         // $this->role = htmlspecialchars(strip_tags($this->role));
 
         $stmt->bindParam(':username', $this->username);
@@ -47,7 +49,216 @@ class User
         }
 
         return false;
+    } */
+    // Register new user
+    /* public function register($isGoogleUser = false)
+    {
+        // Adjust the query based on whether the user signed up with Google or not
+        if ($isGoogleUser) {
+            // Insert query for Google users (without a password)
+            $query = "INSERT INTO " . $this->table . " (username, email, google_id) VALUES(:username, :email, :google_id)";
+        } else {
+            // Insert query for traditional users (with a password)
+            $query = "INSERT INTO " . $this->table . "(username, email, password) VALUES(:username, :email, :password)";
+        }
+
+        // Prepare the statement
+        $stmt = $this->conn->prepare($query);
+
+        // Clean and bind data
+        $this->username = htmlspecialchars(strip_tags($this->username));
+        $this->email = htmlspecialchars(strip_tags($this->email));
+
+        $stmt->bindParam(':username', $this->username);
+        $stmt->bindParam(':email', $this->email);
+
+        if ($isGoogleUser) {
+            // Bind Google ID for Google users
+            $this->google_id = htmlspecialchars(strip_tags($this->google_id));
+            $stmt->bindParam(':google_id', $this->google_id);
+        } else {
+            // Hash the password for traditional users and bind it
+            // $this->password = password_hash($this->password, PASSWORD_BCRYPT);
+            $stmt->bindParam(':password', $this->password);
+        }
+
+        // Execute the query
+        if ($stmt->execute()) {
+            return true;
+        }
+
+        return false;
+    } */
+    /*  public function register($isGoogleUser = false)
+    {
+        if ($isGoogleUser) {
+            $query = "INSERT INTO " . $this->table . " (username, email, google_id) VALUES (:username, :email, :google_id)";
+        } else {
+            $query = "INSERT INTO " . $this->table . " (username, email, password) VALUES (:username, :email, :password)";
+        }
+
+        $stmt = $this->conn->prepare($query);
+
+        $this->username = htmlspecialchars(strip_tags($this->username));
+        $this->email = htmlspecialchars(strip_tags($this->email));
+
+        $stmt->bindParam(':username', $this->username);
+        $stmt->bindParam(':email', $this->email);
+
+        if ($isGoogleUser) {
+            $this->google_id = htmlspecialchars(strip_tags($this->google_id));
+            $stmt->bindParam(':google_id', $this->google_id);
+        } else {
+            $stmt->bindParam(':password', $this->password);
+        }
+
+        if ($stmt->execute()) {
+            return $this->conn->lastInsertId(); // Return the last inserted user ID
+        }
+
+        return false;
+    } */
+    /*   public function register($isGoogleUser = false)
+    {
+        try {
+            if ($isGoogleUser) {
+                $query = "INSERT INTO " . $this->table . " (username, email, google_id) VALUES (:username, :email, :google_id)";
+            } else {
+                $query = "INSERT INTO " . $this->table . " (username, email, password) VALUES (:username, :email, :password)";
+            }
+
+            $stmt = $this->conn->prepare($query);
+
+            $this->username = htmlspecialchars(strip_tags($this->username));
+            $this->email = htmlspecialchars(strip_tags($this->email));
+
+            $stmt->bindParam(':username', $this->username);
+            $stmt->bindParam(':email', $this->email);
+
+            if ($isGoogleUser) {
+                $this->google_id = htmlspecialchars(strip_tags($this->google_id));
+                $stmt->bindParam(':google_id', $this->google_id);
+            } else {
+                $stmt->bindParam(':password', $this->password);
+            }
+
+            if ($stmt->execute()) {
+                $userId = $this->conn->lastInsertId(); // Get the last inserted user ID
+                return ['success' => true, 'user_id' => $userId];
+            }
+
+            return false;
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            return false;
+        }
+    } */
+    public function register($isGoogleUser = false)
+    {
+        try {
+            if ($isGoogleUser) {
+                $query = "INSERT INTO " . $this->table . " (username, email, google_id) VALUES (:username, :email, :google_id)";
+            } else {
+                $query = "INSERT INTO " . $this->table . " (username, email, password) VALUES (:username, :email, :password)";
+            }
+
+            $stmt = $this->conn->prepare($query);
+
+            $this->username = htmlspecialchars(strip_tags($this->username));
+            $this->email = htmlspecialchars(strip_tags($this->email));
+
+            $stmt->bindParam(':username', $this->username);
+            $stmt->bindParam(':email', $this->email);
+
+            if ($isGoogleUser) {
+                $this->google_id = htmlspecialchars(strip_tags($this->google_id));
+                $stmt->bindParam(':google_id', $this->google_id);
+            } else {
+                $stmt->bindParam(':password', $this->password);
+            }
+
+            if ($stmt->execute()) {
+                $userId = $this->conn->lastInsertId(); // Get the last inserted user ID
+
+                // Fetch the username for the inserted user
+                $query = "SELECT username FROM " . $this->table . " WHERE id = :id LIMIT 1";
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindParam(':id', $userId);
+                $stmt->execute();
+
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                $username = $row['username'];
+
+                return [
+                    'success' => true,
+                    'user_id' => $userId,
+                    'user_name' => $username,
+                    'message' => 'User registered successfully.'
+                ];
+            } else {
+                // If execute fails, return a detailed error message
+                $errorInfo = $stmt->errorInfo();
+                return ['success' => false, 'message' => 'Failed to execute statement: ' . $errorInfo[2]];
+            }
+        } catch (PDOException $e) {
+            // Log the exception message and return it for debugging
+            error_log($e->getMessage());
+            return ['success' => false, 'message' => 'PDOException: ' . $e->getMessage()];
+        }
     }
+
+
+
+    // Method to check if a Google user already exists
+    public function googleUserExists($googleId)
+    {
+        // Query to check if a user with the given Google ID exists
+        $query = "SELECT id FROM " . $this->table . " WHERE google_id = :google_id LIMIT 1";
+
+        // Prepare the statement
+        $stmt = $this->conn->prepare($query);
+
+        // Bind the Google ID parameter
+        $stmt->bindParam(':google_id', $googleId);
+
+        // Execute the query
+        $stmt->execute();
+
+        // Check if a row was returned
+        if ($stmt->rowCount() > 0) {
+            return true; // User with this Google ID already exists
+        }
+
+        return false; // User does not exist
+    }
+    // Method to get user ID by Google ID
+    /* public function getUserIdByGoogleId($googleId)
+    {
+        $query = "SELECT id,username FROM " . $this->table . " WHERE google_id = :google_id LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':google_id', $googleId);
+        $stmt->execute();
+
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            return $row;
+        }
+
+        return false;
+    } */
+    public function getUserIdByGoogleId($googleId)
+    {
+        $query = "SELECT id, username FROM " . $this->table . " WHERE google_id = :google_id LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':google_id', $googleId);
+        $stmt->execute();
+
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            return $row;
+        }
+
+        return false;
+    }
+
 
     // Login user
     public function login($username, $password)
@@ -121,6 +332,7 @@ class User
             $this->user_bio = $row['user_bio'];
             $this->role = $row['role'];
             $this->created_at = $row['created_at'];
+            $this->user_status = $row['status'];
             return true;
         }
 
@@ -268,5 +480,31 @@ class User
         $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    //
+    function generateRandomChars($length = 4)
+    {
+        $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $chars[rand(0, strlen($chars) - 1)];
+        }
+        return $randomString;
+    }
+
+    public function isUserActive($userId)
+    {
+        $query = "SELECT status FROM " . $this->table . " WHERE id = :id LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $userId);
+        $stmt->execute();
+
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            // Check if the status indicates the user is active
+            return $row['status'] === 'active';
+        }
+
+        return false;
     }
 }

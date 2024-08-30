@@ -1,6 +1,7 @@
 <?php
 session_start();
 $isLoggedIn = isset($_SESSION['user_id']);
+
 ?>
 
 <!DOCTYPE html>
@@ -12,6 +13,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
     <title><?php echo isset($pageTitle) ? $pageTitle : 'My Blog'; ?></title>
     <link rel="stylesheet" href="/blog_management_system/public/css/styles.css"> <!-- Link to your CSS file -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.0/gsap.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async></script>
 </head>
 
 <body>

@@ -10,7 +10,7 @@ require("./classes/Post.php");
 $currentUserId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '';
 
 
-
+// print_r($_SESSION);
 // Initialize the Database and BlogPost class
 $database = new Database();
 $db = $database->connect();
@@ -18,6 +18,13 @@ $db = $database->connect();
 $user = new User($db);
 $category = new Category($db);
 $post = new Post($db);
+// Check if the user is active
+if (!$user->isUserActive($currentUserId)) {
+    // Unset all of the session variables
+    $_SESSION = array();
+    // Destroy the session
+    session_destroy();
+}
 // Fetch recent blog posts
 $category_id = isset($_GET['category']) ? $_GET['category'] : '';
 if (isset($_GET['category'])) {
