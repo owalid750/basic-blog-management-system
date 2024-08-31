@@ -25,6 +25,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                     <li><a href="index.php">Home</a></li>
                     <?php if ($isLoggedIn): ?>
                         <li><a href="profile.php">Profile</a></li>
+                        <li><a href="manage.php">Manage</a></li>
                         <li class="navbar-text">Welcome, <?php echo $_SESSION['user_name']; ?>!</li>
                         <li>
                             <form action="logout.php" method="post" onsubmit="return confirm('Are you sure you want to log out?');">

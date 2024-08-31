@@ -290,20 +290,32 @@ class User
         return false;
     }
 
-    public function userExists($username)
+    public function userExists($username, $current_user_id = null)
     {
         $query = "SELECT id FROM users WHERE username = :username";
+        if ($current_user_id != null) {
+            $query .= " AND id != :current_user_id";
+        }
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':username', $username);
+        if ($current_user_id != null) {
+            $stmt->bindParam(':current_user_id', $current_user_id);
+        }
         $stmt->execute();
         return $stmt->rowCount() > 0;
     }
 
-    public function emailExists($email)
+    public function emailExists($email, $current_user_id = null)
     {
         $query = "SELECT id FROM users WHERE email = :email";
+        if ($current_user_id != null) {
+            $query .= " AND id != :current_user_id";
+        }
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':email', $email);
+        if ($current_user_id != null) {
+            $stmt->bindParam(':current_user_id', $current_user_id);
+        }
         $stmt->execute();
         return $stmt->rowCount() > 0;
     }
@@ -506,5 +518,85 @@ class User
         }
 
         return false;
+    }
+
+    // MANAGE 
+    public function getUserRole($user_id)
+    {
+        $query = "SELECT role FROM users WHERE id = :user_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getAllUsersExceptCurrent($currentUserId, $role)
+    {
+        if ($role === 'superAdmin') {
+            $query = "SELECT * FROM users WHERE id != :currentUserId AND role != 'superAdmin' AND role != 'sysAdmin' ";
+        } elseif ($role === 'admin') {
+            $query = "SELECT * FROM users WHERE id != :currentUserId AND role = 'user'";
+        } elseif ($role == "sysAdmin") {
+            $query = "SELECT * FROM users WHERE id != :currentUserId ";
+        }
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':currentUserId', $currentUserId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function updateUser($userId, $username, $email, $role = null, $status = null)
+    {
+        if (empty($username) || empty($email)) {
+            $_SESSION["error_msg"] = "Username and email are required.";
+            header("location: manage.php");
+            exit;
+        }
+        if (strlen($username) < 4) {
+            $_SESSION["error_msg"] = "User name at least 4 characters.";
+            header("location: manage.php");
+            exit;
+        }
+        if ($this->userExists($username, $userId)) {
+            $_SESSION["error_msg"] = "Username already exists.";
+            header("location: manage.php");
+            exit;
+        }
+
+
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if ($this->emailExists($email, $userId)) {
+                $_SESSION["error_msg"] = "Email already exists.";
+                header("location: manage.php");
+                exit;
+            }
+        }
+        $query = "UPDATE users SET username = :username, email = :email";
+        if ($role !== null) {
+            $query .= ", role = :role";
+        }
+        if ($status !== null) {
+            $query .= ", status = :status";
+        }
+        $query .= " WHERE id = :user_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->bindParam(':username', $username);
+        $stmt->bindParam(':email', $email);
+        if ($role !== null) {
+            $stmt->bindParam(':role', $role);
+        }
+        if ($status !== null) {
+            $stmt->bindParam(':status', $status);
+        }
+        return $stmt->execute();
+    }
+
+    public function deleteUser($userId)
+    {
+        $query = "DELETE FROM users WHERE id = :user_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        return $stmt->execute();
     }
 }

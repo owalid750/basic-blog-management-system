@@ -100,7 +100,7 @@ $category_names = $category->getAllCategories();
                         <p>
                             <?php
                             $content = htmlspecialchars($single_post['content']);
-                            echo substr($content, 0, 40) . '...';
+                            echo substr($content, 0, 50) . '...';
                             ?>
                         </p>
                         <small>Posted on <?php echo $single_post['created_at']; ?> by <a style="text-decoration: none;" href="public_profile.php?id=<?php echo $single_post['user_id']; ?>"><?php echo $single_post['user_id'] == $currentUserId ? 'You' : htmlspecialchars($single_post['user_name']); ?></a></small>

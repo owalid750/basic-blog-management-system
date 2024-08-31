@@ -436,7 +436,7 @@ $comments = $comment->getAllComments($post_id);
                     <div class="controls">
                         <?php if (isset($_SESSION['user_id']) && $single_post['user_id'] == $_SESSION['user_id']): ?>
                             <a href="post_edit.php?id=<?php echo htmlspecialchars($single_post['id']); ?>" class="btn">Edit</a>
-                            <form action="post_delete.php" method="post" onsubmit="return confirm('Are you sure you want to delete this post?')">
+                            <form action="post_delete.php" method="post" onsubmit="return confirm('Are you sure you want to delete this post this will delete all the comments associated with it?')">
                                 <input type="hidden" name="id" value="<?php echo htmlspecialchars($single_post['id']); ?>">
                                 <button type="submit" class="btn">Delete</button>
                             </form>
