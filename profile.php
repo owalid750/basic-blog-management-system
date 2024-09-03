@@ -1,4 +1,5 @@
 <?php
+ob_start();
 // Include the necessary files
 require("./config/config.php");
 require("./classes/Database.php");
@@ -20,13 +21,17 @@ $db = $database->connect();
 $user = new User($db);
 $post = new Post($db);
 $comment = new Comment($db);
-$user_info = $user->getUserById($_SESSION['user_id']); // this will return true or false
+// if (isset($_POST['user_id'])) {
+//     $currentUserId = $_POST['user_id'];
+// } else {
+$currentUserId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '';
+
+$user_info = $user->getUserById($currentUserId); // this will return true or false
 // Define the path to the default image
 $defaultImage = 'avatar_image.avif';
 
 // Determine the user's image or use the default image if not set
 $userImage = !empty($user->user_image) ? htmlspecialchars("./images/profile_images/" . $user->user_image) : $defaultImage;
-$currentUserId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '';
 $myPosts = $post->getPosts(null, null, null, null, $currentUserId);
 $totalPosts = $post->getTotalPosts($currentUserId);
 $totalComments = $comment->getTotalComments($currentUserId);
@@ -62,7 +67,7 @@ $profile_msg = isset($_SESSION["profile_msg"]) ? htmlspecialchars($_SESSION["pro
 // echo $user->password;
 // echo "<br>";
 // var_dump(password_verify("Esraa123@", $user->password));
-
+// echo $currentUserId;
 ?>
 
 <!-- <link rel="stylesheet" href="./public/css/profile.css"> -->
@@ -462,3 +467,6 @@ $profile_msg = isset($_SESSION["profile_msg"]) ? htmlspecialchars($_SESSION["pro
         }
     }
 </script>
+
+<?php ob_end_flush();
+?>

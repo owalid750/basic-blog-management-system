@@ -1,4 +1,5 @@
 <?php
+ob_start();
 $pageTitle = 'Edit Post';
 include 'header.php';
 // Include the necessary files
@@ -109,3 +110,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <p>Post Not Found</p>
     <?php endif; ?>
 </div>
+<?php ob_end_flush();?>

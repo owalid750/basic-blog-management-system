@@ -20,7 +20,9 @@ $defaultImage = 'avatar_image.avif';
 // Determine the user's image or use the default image if not set
 $userImage = !empty($user->user_image) ? htmlspecialchars("./images/profile_images/" . $user->user_image) : $defaultImage;
 $myPosts = $post->getPosts(null, null, null, null, $id);
-
+$currentUserRole = $user->getUserRole($id)['role'];
+//test
+// echo $currentUserRole;
 ?>
 
 <style>
@@ -117,6 +119,41 @@ $myPosts = $post->getPosts(null, null, null, null, $id);
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
 
+    .role-badge {
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: bold;
+        margin-left: 8px;
+        color: white;
+        /* Default text color */
+    }
+
+    /* Styles for sysAdmin */
+    .role-badge.sysadmin {
+        background-color: #ff5733;
+        /* Bright orange */
+    }
+
+    /* Styles for superAdmin */
+    .role-badge.superadmin {
+        background-color: #28a745;
+        /* Green */
+    }
+
+    /* Styles for admin */
+    .role-badge.admin {
+        background-color: #007bff;
+        /* Blue */
+    }
+
+    /* Styles for user */
+    .role-badge.user {
+        background-color: #6c757d;
+        /* Gray */
+    }
+
+
     /* Responsive Design */
     @media (max-width: 768px) {
         .header-profile {
@@ -147,7 +184,14 @@ $myPosts = $post->getPosts(null, null, null, null, $id);
             <img src="<?php echo htmlspecialchars($userImage); ?>" alt="profile picture">
         </div>
         <div class="profile-info-profile">
-            <h1><?php echo htmlspecialchars($user->username); ?></h1>
+            <h1>
+                <?php echo htmlspecialchars($user->username); ?>
+                <span class="role-badge <?php echo strtolower(htmlspecialchars($currentUserRole)); ?>">
+                    <?php echo htmlspecialchars($currentUserRole); ?>
+                </span>
+            </h1>
+
+
             <p><?php echo htmlspecialchars($user->email); ?></p>
             <p>Bio: <?php echo htmlspecialchars($user->user_bio); ?></p>
         </div>

@@ -17,14 +17,16 @@ $db = $database->connect();
 $post = new Post($db);
 $category = new Category($db);
 $comment = new Comment($db);
+$user = new User($db);
 $post_id = isset($_GET['id']) ? $_GET['id'] : '';
 $post_details = $post->getPosts(null, null, null, $post_id);
 $comments = $comment->getAllComments($post_id);
+$currentUserRole = isset($user->getUserRole($currentUserId)['role']) ? $user->getUserRole($currentUserId)['role'] : "";
 
 //test 
 // print_r($post);
 // print_r($_SESSION);
-
+// echo $currentUserRole;
 ?>
 
 <style>
@@ -434,7 +436,7 @@ $comments = $comment->getAllComments($post_id);
                     <p><?php echo htmlspecialchars($single_post['content']); ?></p>
                     <small>Posted on <?php echo htmlspecialchars($single_post['created_at']); ?> by <a style="text-decoration: none;" href="public_profile.php?id=<?php echo htmlspecialchars($single_post['user_id']); ?>"><?php echo $single_post['user_id'] == $currentUserId ? 'You' : htmlspecialchars($single_post['user_name']);  ?></a></small>
                     <div class="controls">
-                        <?php if (isset($_SESSION['user_id']) && $single_post['user_id'] == $_SESSION['user_id']): ?>
+                        <?php if ($single_post['user_id'] == $currentUserId || $currentUserRole == 'sysAdmin'): ?>
                             <a href="post_edit.php?id=<?php echo htmlspecialchars($single_post['id']); ?>" class="btn">Edit</a>
                             <form action="post_delete.php" method="post" onsubmit="return confirm('Are you sure you want to delete this post this will delete all the comments associated with it?')">
                                 <input type="hidden" name="id" value="<?php echo htmlspecialchars($single_post['id']); ?>">
@@ -471,7 +473,7 @@ $comments = $comment->getAllComments($post_id);
                                     <span class="comment-date"><?php echo htmlspecialchars($comment['created_at']); ?></span>
                                 </div>
                                 <p class="comment-content"><?php echo htmlspecialchars($comment['content']); ?></p>
-                                <?php if ($currentUserId == $comment['user_id'] || $currentUserId == $post_details[0]['user_id']): ?>
+                                <?php if ($currentUserId == $comment['user_id'] || $currentUserId == $post_details[0]['user_id'] || $currentUserRole == 'sysAdmin'): ?>
                                     <div class="comment-actions">
                                         <button type="button" class="btn btn-edit" onclick="toggleDialog('update-comment-dialog-<?php echo htmlspecialchars($comment['id']); ?>')">Edit</button>
                                         <div id="update-comment-dialog-<?php echo htmlspecialchars($comment['id']); ?>" class="dialog" style="display: none;">

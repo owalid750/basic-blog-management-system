@@ -529,18 +529,67 @@ class User
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    public function getAllUsersExceptCurrent($currentUserId, $role)
+    // public function getAllUsersExceptCurrent($currentUserId, $role, $searchInput = null)
+    // {
+    //     $query = "";
+    //     if ($role === 'superAdmin') {
+    //         $query = "SELECT * FROM users WHERE id != :currentUserId AND role != 'superAdmin' AND role != 'sysAdmin' ";
+    //     } elseif ($role === 'admin') {
+    //         $query = "SELECT * FROM users WHERE id != :currentUserId AND role = 'user'";
+    //     } elseif ($role == "sysAdmin") {
+    //         $query = "SELECT * FROM users WHERE id != :currentUserId ";
+    //     }
+    //     if ($searchInput !== null) {
+    //         $query .= " AND username = :searchInput ";
+    //     }
+    //     $query .= "ORDER BY created_at DESC";
+    //     $stmt = $this->conn->prepare($query);
+    //     $stmt->bindParam(':currentUserId', $currentUserId, PDO::PARAM_INT);
+    //     if ($searchInput !== null) {
+    //         $stmt->bindParam(':searchInput', $searchInput);
+    //     }
+    //     $stmt->execute();
+    //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // }
+    public function getAllUsersExceptCurrent($currentUserId, $role, $searchInput = null, $filterRole = null, $filterStatus = null)
     {
+        $query = "";
+
         if ($role === 'superAdmin') {
             $query = "SELECT * FROM users WHERE id != :currentUserId AND role != 'superAdmin' AND role != 'sysAdmin' ";
         } elseif ($role === 'admin') {
-            $query = "SELECT * FROM users WHERE id != :currentUserId AND role = 'user'";
-        } elseif ($role == "sysAdmin") {
+            $query = "SELECT * FROM users WHERE id != :currentUserId AND role = 'user' ";
+        } elseif ($role === "sysAdmin") {
             $query = "SELECT * FROM users WHERE id != :currentUserId ";
         }
 
+        // Add the search condition
+        if ($searchInput !== null) {
+            $query .= "AND username LIKE :searchInput ";  // Added a space before AND and changed = to LIKE
+        }
+        // Add the filterRole 
+        if ($filterRole !== null && $filterRole !== "") {
+            $query .= " AND role = :filterRole ";
+        }
+        // Add the filterStatus 
+        if ($filterStatus !== null && $filterStatus !== "") {
+            $query .= " AND status = :filterStatus ";
+        }
+        $query .= "ORDER BY created_at DESC";
+
+        // Prepare and execute the statement
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':currentUserId', $currentUserId, PDO::PARAM_INT);
+
+        if ($searchInput !== null) {
+            $stmt->bindValue(':searchInput', '%' . $searchInput . '%', PDO::PARAM_STR);  // Use bindValue with LIKE
+        }
+        if ($filterRole !== null && $filterRole !== "") {
+            $stmt->bindParam(':filterRole', $filterRole);
+        }
+        if ($filterStatus !== null && $filterStatus !== "") {
+            $stmt->bindParam(':filterStatus', $filterStatus);
+        }
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

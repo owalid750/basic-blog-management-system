@@ -36,7 +36,7 @@ class Post
 
     public function getPosts($limit = null, $date = null, $category = null, $id = null, $user_id = null)
     {
-        $query = "SELECT p.id, p.user_id,p.category_id,p.title, p.content, p.created_at, p.updated_at, p.image_url, c.id AS category_id,c.name AS category_name, u.username AS user_name, u.user_image AS user_image
+        $query = "SELECT p.id, p.user_id,p.category_id,p.title, p.content, p.created_at, p.updated_at, p.image_url, c.id AS category_id,c.name AS category_name, u.username AS user_name, u.user_image AS user_image ,u.role AS user_role
         FROM $this->table_name p 
         JOIN categories c ON p.category_id = c.id 
         JOIN users u ON p.user_id = u.id";
@@ -48,7 +48,7 @@ class Post
         if ($date) {
             $query .= " AND p.created_at = :date";
         }
-        
+
         if ($id) {
             $query .= " AND p.id = :id";
         }
